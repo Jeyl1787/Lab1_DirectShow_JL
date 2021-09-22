@@ -10,7 +10,8 @@ DShowPlayer::DShowPlayer(HWND hwnd) :
     m_pGraph(NULL),
     m_pControl(NULL),
     m_pEvent(NULL),
-    m_pVideo(NULL)
+    m_pVideo(NULL),
+    m_pSeek(NULL)
 {
 
 }
@@ -139,13 +140,14 @@ HRESULT DShowPlayer::Replay()
     REFERENCE_TIME rtNew = 0;
     HRESULT hr;
 
-    hr = m_pSeek->SetPositions(&rtNew, AM_SEEKING_AbsolutePositioning, NULL, AM_SEEKING_NoPositioning);
+    hr = m_pSeek->put_CurrentPosition(rtNew);
     return hr;
 }
 
 HRESULT DShowPlayer::FastForward()
 {
-    HRESULT hr = m_pSeek->SetRate(2.0);
+    double dRate = 2.0;
+    HRESULT hr = m_pSeek->put_Rate(dRate);
 
     return hr;
 }
@@ -230,6 +232,12 @@ HRESULT DShowPlayer::InitializeGraph()
     {
         goto done;
     }
+    hr = m_pGraph->QueryInterface(IID_PPV_ARGS(&m_pSeek));
+    if (FAILED(hr))
+    {
+        goto done;
+    }
+
 
     // Set up event notification.
     hr = m_pEvent->SetNotifyWindow((OAHWND)m_hwnd, WM_GRAPH_EVENT, NULL);
@@ -255,6 +263,7 @@ void DShowPlayer::TearDownGraph()
     SafeRelease(&m_pGraph);
     SafeRelease(&m_pControl);
     SafeRelease(&m_pEvent);
+    SafeRelease(&m_pSeek);
 
     delete m_pVideo;
     m_pVideo = NULL;

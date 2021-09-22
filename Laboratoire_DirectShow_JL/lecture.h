@@ -50,6 +50,6 @@ private:
     IMediaControl *m_pControl;
     IMediaEventEx *m_pEvent;
     CVideoRenderer *m_pVideo;
-    IMediaSeeking *m_pSeek;
+    IMediaPosition *m_pSeek;
     REFERENCE_TIME rtNew;
 };
